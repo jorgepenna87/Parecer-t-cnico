@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gerador de Parecer Técnico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,400;0,600;0,700;1,400&family=Inter+Tight:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="brand-mark">PT</span>
+    <div class="brand-text">
+      <h1>Gerador de Parecer Técnico</h1>
+      <p>Liquidação de Sentença Trabalhista</p>
+    </div>
+  </div>
+  <div class="topbar-actions">
+    <span id="autosave-indicator" class="autosave">rascunho salvo</span>
+    <button id="btn-reset" class="btn-ghost" type="button">limpar tudo</button>
+  </div>
+</header>
+
+<nav class="stepper" id="stepper">
+  <div class="step" data-step="processo"><span>01</span> Processo</div>
+  <div class="step" data-step="contrato"><span>02</span> Contrato</div>
+  <div class="step" data-step="verbas"><span>03</span> Verbas</div>
+  <div class="step" data-step="encargos"><span>04</span> Encargos</div>
+  <div class="step" data-step="decisao"><span>05</span> Finalizar</div>
+</nav>
+
+<main class="container">
+
+<!-- ============ TELA 1: PROCESSO ============ -->
+<section class="screen" id="screen-processo">
+  <div class="screen-head">
+    <span class="screen-num">01</span>
+    <h2>Dados processuais</h2>
+    <p>Cole o cabeçalho do processo. O app extrai os campos automaticamente — confira e ajuste se precisar.</p>
+  </div>
+
+  <div class="card">
+    <label class="lbl">
+      <span>cabeçalho do processo (texto cru)</span>
+      <textarea id="raw-processo" rows="6" placeholder="PODER JUDICIÁRIO JUSTIÇA DO TRABALHO TRIBUNAL REGIONAL DO TRABALHO DA 1ª REGIÃO 16ª Vara do Trabalho do Rio de Janeiro CumSen 0101079-48.2025.5.01.0016 EXEQUENTE: GILSON DA COSTA PINHEIRO EXECUTADO: COMPANHIA DOCAS DO RIO DE JANEIRO"></textarea>
+    </label>
+    <button id="btn-extrair" class="btn-secondary" type="button">extrair dados →</button>
+  </div>
+
+  <div class="card grid-2">
+    <label class="lbl"><span>órgão julgador</span>
+      <input id="orgao" type="text" placeholder="16ª Vara do Trabalho do Rio de Janeiro"></label>
+    <label class="lbl"><span>tribunal</span>
+      <input id="tribunal" type="text" placeholder="TRT 1ª Região"></label>
+    <label class="lbl"><span>tipo de feito</span>
+      <input id="tipo-feito" type="text" placeholder="CumSen, ATOrd, ROT…"></label>
+    <label class="lbl"><span>nº do processo</span>
+      <input id="num-processo" type="text" placeholder="0101079-48.2025.5.01.0016"></label>
+    <label class="lbl"><span>reclamante</span>
+      <input id="reclamante" type="text" placeholder="GILSON DA COSTA PINHEIRO"></label>
+    <label class="lbl"><span>reclamada</span>
+      <input id="reclamada" type="text" placeholder="COMPANHIA DOCAS DO RIO DE JANEIRO"></label>
+  </div>
+
+  <div class="screen-foot">
+    <span></span>
+    <button class="btn-primary" data-go="contrato">avançar →</button>
+  </div>
+</section>
+
+<!-- ============ TELA 2: CONTRATO ============ -->
+<section class="screen hidden" id="screen-contrato">
+  <div class="screen-head">
+    <span class="screen-num">02</span>
+    <h2>Dados contratuais</h2>
+    <p>Datas-chave e parâmetros do contrato de trabalho.</p>
+  </div>
+
+  <div class="card grid-2">
+    <label class="lbl"><span>data de admissão</span>
+      <input id="admissao" type="date"></label>
+    <label class="lbl"><span>data de demissão</span>
+      <input id="demissao" type="date"></label>
+    <label class="lbl"><span>data de ajuizamento</span>
+      <input id="ajuizamento" type="date"></label>
+    <label class="lbl"><span>função</span>
+      <input id="funcao" type="text" placeholder="Guarda Portuário"></label>
+    <label class="lbl"><span>última remuneração</span>
+      <input id="remuneracao" type="text" placeholder="R$ 3.900,00"></label>
+    <label class="lbl flex-row">
+      <input id="sem-prescricao" type="checkbox">
+      <span>não há prescrição</span>
+    </label>
+  </div>
+
+  <div class="card" id="box-prescricao">
+    <label class="lbl"><span>marco prescricional</span>
+      <input id="marco-prescricao" type="date">
+      <small class="hint">5 anos antes do ajuizamento (digite manualmente)</small>
+    </label>
+  </div>
+
+  <div class="screen-foot">
+    <button class="btn-ghost" data-go="processo">← voltar</button>
+    <button class="btn-primary" data-go="verbas">avançar →</button>
+  </div>
+</section>
+
+<!-- ============ TELA 3: VERBAS ============ -->
+<section class="screen hidden" id="screen-verbas">
+  <div class="screen-head">
+    <span class="screen-num">03</span>
+    <h2>Verbas deferidas</h2>
+    <p>Para cada verba, cole o trecho da sentença e o resumo já produzido pelo Oráculo.</p>
+  </div>
+
+  <div id="verbas-list"></div>
+
+  <button id="btn-add-verba" class="btn-add" type="button">
+    <span>+</span> adicionar verba
+  </button>
+
+  <div class="screen-foot">
+    <button class="btn-ghost" data-go="contrato">← voltar</button>
+    <button class="btn-primary" data-go="encargos">avançar →</button>
+  </div>
+</section>
+
+<!-- ============ TELA 4: ENCARGOS ============ -->
+<section class="screen hidden" id="screen-encargos">
+  <div class="screen-head">
+    <span class="screen-num">04</span>
+    <h2>Encargos e atualização</h2>
+    <p>Honorários, custas e critério de correção.</p>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title">Honorários sucumbenciais</h3>
+    <label class="lbl"><span>trecho da sentença</span>
+      <textarea id="hon-suc-trecho" rows="3" placeholder="Devidos, na forma do art. 791-A da CLT, fixados em 5%..."></textarea></label>
+    <label class="lbl"><span>resumo objetivo</span>
+      <textarea id="hon-suc-resumo" rows="3" placeholder="Percentual: 5% sobre o valor líquido da condenação. Devidos pela reclamada."></textarea></label>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title">Atualização monetária e juros</h3>
+    <label class="lbl"><span>trecho da sentença</span>
+      <textarea id="atualiza-trecho" rows="3" placeholder="A correção monetária observará o IPCA-E na fase pré-judicial e SELIC a partir do ajuizamento..."></textarea></label>
+    <label class="lbl"><span>resumo objetivo</span>
+      <textarea id="atualiza-resumo" rows="3" placeholder="Critério: IPCA-E até o ajuizamento; SELIC após. Juros pela SELIC."></textarea></label>
+  </div>
+
+  <div class="card">
+    <label class="lbl flex-row">
+      <input id="tem-pericia" type="checkbox">
+      <span>houve perícia</span>
+    </label>
+    <div id="box-pericia" class="hidden">
+      <h3 class="section-title">Honorários periciais</h3>
+      <label class="lbl"><span>trecho da sentença</span>
+        <textarea id="hon-per-trecho" rows="3" placeholder="Considerando a sucumbência da reclamada no objeto da perícia..."></textarea></label>
+      <label class="lbl"><span>resumo objetivo</span>
+        <textarea id="hon-per-resumo" rows="3" placeholder="Valor: R$ 3.900,00. Responsável: reclamada."></textarea></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="section-title">Custas</h3>
+    <label class="lbl"><span>trecho da sentença</span>
+      <textarea id="custas-trecho" rows="3" placeholder="Custas pela reclamada, no importe de..."></textarea></label>
+    <label class="lbl"><span>resumo objetivo</span>
+      <textarea id="custas-resumo" rows="3" placeholder="Valor: R$ X. Responsável: reclamada."></textarea></label>
+  </div>
+
+  <div class="screen-foot">
+    <button class="btn-ghost" data-go="verbas">← voltar</button>
+    <button class="btn-primary" data-go="decisao">avançar →</button>
+  </div>
+</section>
+
+<!-- ============ TELA 5: DECISÃO ============ -->
+<section class="screen hidden" id="screen-decisao">
+  <div class="screen-head">
+    <span class="screen-num">05</span>
+    <h2>Finalizar</h2>
+    <p>Defina o tipo de parecer a gerar.</p>
+  </div>
+
+  <div class="choice-grid">
+    <label class="choice">
+      <input type="radio" name="tipo-parecer" value="simples" checked>
+      <div class="choice-body">
+        <h3>Parecer simples</h3>
+        <p>Apenas mapeamento das verbas deferidas, com critérios fixados na sentença.</p>
+      </div>
+    </label>
+    <label class="choice">
+      <input type="radio" name="tipo-parecer" value="impugnacao">
+      <div class="choice-body">
+        <h3>Parecer + Impugnação aos cálculos</h3>
+        <p>Inclui seção de impugnações sugeridas aos cálculos da parte adversa.</p>
+      </div>
+    </label>
+  </div>
+
+  <div id="box-impugnacoes" class="hidden">
+    <h3 class="section-title-big">Pontos de impugnação</h3>
+    <p class="hint">Para cada ponto, descreva o equívoco identificado. Você pode citar trecho da sentença que sustenta a impugnação.</p>
+    <div id="impug-list"></div>
+    <button id="btn-add-impug" class="btn-add" type="button">
+      <span>+</span> adicionar ponto de impugnação
+    </button>
+  </div>
+
+  <div class="card final-card">
+    <h3 class="section-title">Assinatura no parecer</h3>
+    <div class="grid-2">
+      <label class="lbl"><span>nome do perito</span>
+        <input id="perito-nome" type="text" placeholder="Nome completo"></label>
+      <label class="lbl"><span>registro / documento</span>
+        <input id="perito-doc" type="text" placeholder="Ex.: registro profissional"></label>
+    </div>
+  </div>
+
+  <div class="screen-foot">
+    <button class="btn-ghost" data-go="encargos">← voltar</button>
+    <button id="btn-gerar" class="btn-primary btn-big">gerar parecer .docx ↓</button>
+  </div>
+</section>
+
+</main>
+
+<footer class="footer">
+  <p>Gerador de Parecer Técnico · Liquidação de Sentença Trabalhista</p>
+</footer>
+
+<!-- docx.js library -->
+<script src="https://unpkg.com/docx@8.5.0/build/index.umd.js"></script>
+<!-- file-saver -->
+<script src="https://unpkg.com/file-saver@2.0.5/dist/FileSaver.min.js"></script>
+<!-- App scripts -->
+<script src="state.js"></script>
+<script src="extract.js"></script>
+<script src="ui.js"></script>
+<script src="docgen.js"></script>
+<script src="app.js"></script>
+
+</body>
+</html>

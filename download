@@ -1,0 +1,7 @@
+node_modules/
+*.docx
+*.pdf
+*.png
+package.json
+package-lock.json
+test_gen.js
